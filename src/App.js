@@ -16,11 +16,30 @@ class App extends React.Component {
     bookList: []
   }
 
-  search() { 
-    fetch(`https://www.googleapis.com/books/v1/volumes?q=search+terms`)
+  search = (e) => { 
+    const userInput = e.target.userInput.value
+    const printType = e.target.printType.value
+    const bookFilter = e.target.bookFilter.value
+
+    e.preventDefault();
+
+    let params = {
+      q: userInput,
+      key: 'AIzaSyC2IrffVIMj4Rjj3lYp2aQtZR3YhIDdtSE',
+      printType: printType
+  };
+  if (bookFilter) {
+    params.filter = bookFilter;
+  }
+  var esc = encodeURIComponent;
+  var query = Object.keys(params)
+      .map(k => esc(k) + '=' + esc(params[k]))
+      .join('&');
+
+    fetch(`https://www.googleapis.com/books/v1/volumes?` + query)
     .then(response => response.json())
     .then(data => this.setState({bookList : data.items}))
-    .catch()
+    .catch(error => console.log(error))
   }
 
   render() {
@@ -30,7 +49,7 @@ class App extends React.Component {
           <h1>Google Book Search</h1>
         </header>
         <main>
-          <Search />
+          <Search search = {this.search} />
           <BookList list={this.state.bookList} />
         </main>
       </div>
